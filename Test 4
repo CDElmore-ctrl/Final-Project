@@ -1,0 +1,180 @@
+import random
+
+HANGMAN_PICS = [r''' 
++---+
+    |
+    |
+    |
+   ===''',
+                r'''
+ +---+
+ O   |
+     |
+     |
+    ===''',
+                r'''
+ +---+
+ O   |
+ |   |
+     |
+    ===''',
+                r'''
+ +---+
+ O   |
+/|   |
+     |
+    ===''',
+                r'''
+ +---+
+ O   |
+/|\  |
+     |
+    ===''',
+                r''' 
+ +---+
+ O   |
+/|\  |
+/    |
+    ===''', 
+                r''' 
+ +---+
+ O   |
+/|\  |
+/ \  |
+    ===''']
+
+# Define the categories and their words
+animals = '''ant baboon badger bat bear beaver camel cat clam cobra cougar
+coyote crow deer dog donkey duck eagle ferret fox frog goat goose hawk
+lion lizard llama mole monkey moose mouse mule newt otter owl panda
+parrot pigeon python rabbit ram rat raven rhino salmon seal shark sheep
+skunk sloth snake spider stork swan tiger toad trout turkey turtle
+weasel whale wolf wombat zebra'''.split()
+
+fruits = '''apple banana blackberry blueberry cantaloupe cherry coconut
+date fig grape grapefruit kiwi lemon lime mango melon nectarine orange
+papaya pear pineapple plum pomegranate raspberry strawberry tangerine
+watermelon'''.split()
+
+colors = '''red orange yellow green blue indigo violet pink brown black
+white gray silver gold purple cyan magenta turquoise beige teal maroon
+peach lavender lime aqua coral ivory olive emerald'''.split()
+
+# Define the states category with U.S. states
+states = '''alabama alaska arizona arkansas california colorado connecticut
+delaware florida georgia hawaii idaho illinois indiana iowa kansas kentucky
+louisiana maine maryland massachusetts michigan minnesota mississippi
+missouri montana nebraska nevada new_hampshire new_jersey new_mexico
+new_york north_carolina north_dakota ohio oklahoma oregon pennsylvania
+rhode_island south_carolina south_dakota tennessee texas utah vermont
+virginia washington west_virginia wisconsin wyoming'''.split()
+
+# Function to get a random word from a list
+def getRandomWord(wordList):
+    wordIndex = random.randint(0, len(wordList) - 1)
+    return wordList[wordIndex]
+
+def displayBoard(missedLetters, correctLetters, secretWord):
+    print(HANGMAN_PICS[min(len(missedLetters), len(HANGMAN_PICS) - 1)])
+    print()
+    print('Missed letters:', end=' ')
+    for letter in missedLetters:
+        print(letter, end=' ')
+    print()
+
+    blanks = ['_'] * len(secretWord)
+
+    for i in range(len(secretWord)):
+        if secretWord[i] in correctLetters:
+            blanks[i] = secretWord[i]
+
+    print(' '.join(blanks))
+
+def getGuess(alreadyGuessed, category):
+    while True:
+        print(f'Guess a letter. The category is {category.upper()}')
+        guess = input().lower()
+        if len(guess) != 1:
+            print('Please enter a single letter.')
+        elif guess in alreadyGuessed:
+            print('You have already guessed that letter. Choose again.')
+        elif guess not in 'abcdefghijklmnopqrstuvwxyz':
+            print('Please enter a LETTER.')
+        else:
+            return guess
+
+def playAgain():
+    print('Do you want to play again? (yes or no)')
+    return input().lower().startswith('y')
+
+
+print('H A N G M A N')
+missedLetters = ''
+correctLetters = ''
+gameIsDone = False
+
+while True:
+    # Prompt user to choose a category
+    print("Choose a category to play:")
+    print("1. ANIMAL")
+    print("2. FRUIT")
+    print("3. COLOR")
+    print("4. STATE")
+    category_choice = input("Enter the number of your choice (1-4): ").strip()
+
+    # Ensure valid input
+    while category_choice not in ['1', '2', '3', '4']:
+        print("Invalid choice! Please enter a number between 1 and 4.")
+        category_choice = input("Enter the number of your choice (1-4): ").strip()
+
+    # Set the category and choose a random word
+    if category_choice == '1':
+        category = 'ANIMAL'
+        secretWord = getRandomWord(animals)
+    elif category_choice == '2':
+        category = 'FRUIT'
+        secretWord = getRandomWord(fruits)
+    elif category_choice == '3':
+        category = 'COLOR'
+        secretWord = getRandomWord(colors)
+    else:
+        category = 'STATE'
+        secretWord = getRandomWord(states)
+
+    print(f'Category: {category}')
+    
+    while True:
+        displayBoard(missedLetters, correctLetters, secretWord)
+
+        guess = getGuess(missedLetters + correctLetters, category)
+
+        if guess in secretWord:
+            correctLetters += guess
+
+            foundAllLetters = True
+            for i in range(len(secretWord)):
+                if secretWord[i] not in correctLetters:
+                    foundAllLetters = False
+                    break
+            if foundAllLetters:
+                print('Yes! The secret word is "' + secretWord + '"! You have won!')
+                gameIsDone = True
+        else:
+            missedLetters += guess
+
+            if len(missedLetters) == len(HANGMAN_PICS) - 1:
+                displayBoard(missedLetters, correctLetters, secretWord)
+                print('You have run out of guesses!\nAfter ' +
+                      str(len(missedLetters)) + ' missed guesses and ' +
+                      str(len(correctLetters)) + ' correct guesses, ' +
+                      'the word was "' + secretWord + '"')
+                gameIsDone = True
+
+        if gameIsDone:
+            if playAgain():
+                missedLetters = ''
+                correctLetters = ''
+                gameIsDone = False
+            else:
+                break
+
