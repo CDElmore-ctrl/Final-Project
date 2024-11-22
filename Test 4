@@ -46,19 +46,19 @@ HANGMAN_PICS = [r'''
 # Define the categories and their words
 animals = '''ant baboon badger bat bear beaver camel cat clam cobra cougar
 coyote crow deer dog donkey duck eagle ferret fox frog goat goose hawk
-lion lizard llama mole monkey moose mouse mule newt otter owl panda
+lion lizard llama monkey moose mouse mule otter owl panda
 parrot pigeon python rabbit ram rat raven rhino salmon seal shark sheep
-skunk sloth snake spider stork swan tiger toad trout turkey turtle
-weasel whale wolf wombat zebra'''.split()
+skunk sloth snake spider stork swan tiger toad turkey turtle
+weasel whale wolf zebra'''.split()
 
 fruits = '''apple banana blackberry blueberry cantaloupe cherry coconut
-date fig grape grapefruit kiwi lemon lime mango melon nectarine orange
+date fig grape grapefruit kiwi lemon lime mango melon orange
 papaya pear pineapple plum pomegranate raspberry strawberry tangerine
 watermelon'''.split()
 
 colors = '''red orange yellow green blue indigo violet pink brown black
-white gray silver gold purple cyan magenta turquoise beige teal maroon
-peach lavender lime aqua coral ivory olive emerald'''.split()
+white gray silver gold purple magenta turquoise beige teal maroon
+peach lavender aqua coral ivory emerald'''.split()
 
 # Define the states category with U.S. states
 states = '''alabama alaska arizona arkansas california colorado connecticut
@@ -177,4 +177,5 @@ while True:
                 gameIsDone = False
             else:
                 break
+
 
