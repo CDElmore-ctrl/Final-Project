@@ -1,0 +1,292 @@
+#Created by Caleb Elmore, Jacob Ayers, and Ein Howard
+
+
+import random
+import pyfiglet
+
+#change 1: Added r in front of the following quotes so that the backwards slashes would be interpreted literally and avoid error
+HANGMAN_PICS = [r''' 
++---+
+    |
+    |
+    |
+   ===''',
+                r'''
+ +---+
+ O   |
+     |
+     |
+    ===''',
+                r'''
+ +---+
+ O   |
+ |   |
+     |
+    ===''',
+                r'''
+ +---+
+ O   |
+/|   |
+     |
+    ===''',
+                r'''
+ +---+
+ O   |
+/|\  |
+     |
+    ===''',
+                r''' 
+ +---+
+ O   |
+/|\  |
+/    |
+    ===''', 
+                r''' 
+ +---+
+ O   |
+/|\  |
+/ \  |
+    ===''']
+
+# change 2: Four category options added for the users choice.
+#Categories can be chosen because of the functions below. Displayed every round.
+animals = '''goat mule rabbit badger llama monkey frog fox baboon eagle
+camel panda bat cobra crow rat skunk zebra seal dolphin cougar owl
+raven lion hawk weasel donkey python turtle coyote cat sheep wolf moose
+frog mouse duck lion ram shark stork salamander snake badger tiger otter
+pigeon toad bear beaver deer bat'''.split()
+
+fruits = '''kiwi watermelon pear grape blackberry cantaloupe lime
+mango orange pomegranate blueberry strawberry tangerine coconut
+plum lemon raspberry banana apple grapefruit pineapple cherry'''.split()
+
+colors = '''red orange yellow green blue indigo violet pink brown black
+white gray silver gold purple magenta turquoise beige aqua coral ivory emerald'''.split()
+
+states = '''florida kansas michigan ohio oregon wyoming alaska
+georgia alabama washington nebraska nevada idaho kentucky tennessee
+montana colorado vermont maryland texas california pennsylvania illinois
+maine utah louisiana massachusetts mississippi iowa minnesota arkansas
+indiana arizona connecticut missouri'''.split()
+
+def getRandomWord(wordList):
+    """
+    Selects a random word from a given list of words.
+    
+    Args:
+    wordList (list): The list of words from which to select a random word.
+    
+    Returns:
+    str: A randomly selected word from the word list.
+    """
+    wordIndex = random.randint(0, len(wordList) - 1)
+    return wordList[wordIndex]
+
+def displayBoard(missedLetters, correctLetters, secretWord):
+    """
+    Displays the current state of the game, including the Hangman image,
+    missed letters, and the progress of correct letter guesses.
+    
+    Args:
+    missedLetters (str): A string of letters that have been guessed incorrectly.
+    correctLetters (str): A string of letters that have been guessed correctly.
+    secretWord (str): The secret word the player is trying to guess.
+    """
+    print(HANGMAN_PICS[min(len(missedLetters), len(HANGMAN_PICS) - 1)])
+    print()
+    print('Missed letters:', end=' ')
+    for letter in missedLetters:
+        print(letter, end=' ')
+    print()
+
+    blanks = ['_'] * len(secretWord)
+
+    for i in range(len(secretWord)):
+        if secretWord[i] in correctLetters:
+            blanks[i] = secretWord[i]
+
+    print(' '.join(blanks))
+
+def getGuess(alreadyGuessed, category):
+    """
+    Prompts the player to guess a letter, ensuring that the input is valid.
+    
+    Args:
+    alreadyGuessed (str): A string of letters that have already been guessed.
+    category (str): The category of the word being guessed, for informational purposes.
+    
+    Returns:
+    str: A valid single letter guess from the player.
+    """
+    while True:
+        print(f'Guess a letter. The category is {category.upper()}')
+        guess = input().lower()
+        if len(guess) != 1:
+            print('Please enter a single letter.')
+        elif guess in alreadyGuessed:
+            print('You have already guessed that letter. Choose again.')
+        elif guess not in 'abcdefghijklmnopqrstuvwxyz':
+            print('Please enter a LETTER.')
+        else:
+            return guess
+        
+#change 3: Hint feature added to help players. Hints are modified by the difficulty functions below.
+def requestHint(secretWord, guessedLetters):
+    """
+    Provides a hint to the player by revealing one unguessed letter from the secret word.
+    
+    Args:
+    secretWord (str): The secret word the player is trying to guess.
+    guessedLetters (str): A string of letters that have already been guessed.
+    
+    Returns:
+    str or None: A hint letter from the secret word, or None if no unguessed letters remain.
+    """
+    unguessedLetters = [letter for letter in secretWord if letter not in guessedLetters]
+    if unguessedLetters:
+        hint = random.choice(unguessedLetters)
+        print(f"Hint: One of the letters in the word is '{hint}'")
+        return hint
+    else:
+        print("No hints available!")
+        return None
+
+def playAgain():
+    """
+    Asks the player if they want to play another game after the current one ends.
+    
+    Returns:
+    bool: True if the player wants to play again, False otherwise.
+    """
+    print('Do you want to play again? (y or n)')
+    return input().lower().startswith('y')
+
+#change 4: CONGRATUALTIONS message will display when player wins. Uses pyfiglet imported above.
+def displayCongratulations():
+    """
+    Displays a large ASCII art message saying "Congratulations" to the player.
+    """
+    congrats_message = pyfiglet.figlet_format("Congratulations")
+    print(congrats_message)
+    
+#change 5: Difficulty levels added which modifies number of hints available. Displayed every round.
+def chooseDifficulty():
+    """
+    Prompts the player to choose a difficulty level for the game and assigns the number of hints based on the choice.
+    
+    Returns:
+    int: The number of hints the player can request, based on the chosen difficulty.
+    """
+    print("Choose a difficulty level:")
+    print("1. Easy (2 hints)")
+    print("2. Medium (1 hint)")
+    print("3. Hard (0 hints)")
+    while True:
+        difficulty = input("Enter the number of your choice (1-3): ").strip()
+        if difficulty == '1':
+            return 2
+        elif difficulty == '2':
+            return 1
+        elif difficulty == '3':
+            return 0
+        else:
+            print("Invalid choice. Please enter a number between 1 and 3.")
+            
+#change 6: Welcome message and instructions added. Only to display at the begining of the game.
+def startGame():
+    """
+    Starts the main game loop for HANGMAN. The player is prompted to choose a category,
+    difficulty level, and then guess the secret word. The game continues until the player
+    chooses not to play again.
+    """
+    print("Welcome to HANGMAN!")
+    print("\nYour goal is to guess the secret word. Enjoy!")
+    print("\nHere are the rules:")
+    print("1. You will be given a random word of your choice from one out of the four categories available.")
+    print("2. You can choose the level of difficulty you want to play.")
+    print("3. You can guess one letter at a time.")
+    print("4. Each time you guess a wrong letter, a part of the Hangman will appear.")
+    print("5. You have the option to use one hint to reveal a letter in the word. Using the hint will cost one guess.")
+    print("6. If you guess the word before the Hangman is fully drawn, you win!")
+    print("7. You have a set number of hints depending on the difficulty level.")
+    print("\nGood luck!\n")
+
+    while True:
+        print("Choose a category to play:")
+        print("1. ANIMAL")
+        print("2. FRUIT")
+        print("3. COLOR")
+        print("4. STATE")
+        category_choice = input("Enter the number of your choice (1-4): ").strip()
+
+        while category_choice not in ['1', '2', '3', '4']:
+            print("Invalid choice! Please enter a number between 1 and 4.")
+            category_choice = input("Enter the number of your choice (1-4): ").strip()
+        if category_choice == '1':
+            category = 'ANIMAL'
+            secretWord = getRandomWord(animals)
+        elif category_choice == '2':
+            category = 'FRUIT'
+            secretWord = getRandomWord(fruits)
+        elif category_choice == '3':
+            category = 'COLOR'
+            secretWord = getRandomWord(colors)
+        else:
+            category = 'STATE'
+            secretWord = getRandomWord(states)
+
+        print(f'Category: {category}')
+
+        hintsAvailable = chooseDifficulty()
+
+        missedLetters = ''
+        correctLetters = ''
+        gameIsDone = False
+
+        while not gameIsDone:
+            displayBoard(missedLetters, correctLetters, secretWord)
+
+#change7: Warning for the player when they have only one incorrect guess left.
+            if len(missedLetters) == len(HANGMAN_PICS) - 2:
+                print("Warning: You have only one incorrect guess left!")
+
+            if hintsAvailable > 0:
+                print(f"Hints available: {hintsAvailable}")
+                hint_request = input("Do you want a hint? (y or n): ").strip().lower()
+                if hint_request == 'y':
+                    hint = requestHint(secretWord, correctLetters + missedLetters)
+                    if hint:
+                        correctLetters += hint
+                        hintsAvailable -= 1
+                        missedLetters += 'X'
+                        displayBoard(missedLetters, correctLetters, secretWord)
+                        print(f"Hint applied: '{hint}' is now in the word.")
+                        continue
+
+            guess = getGuess(missedLetters + correctLetters, category)
+
+            if guess in secretWord:
+                correctLetters += guess
+
+                foundAllLetters = True
+                for i in range(len(secretWord)):
+                    if secretWord[i] not in correctLetters:
+                        foundAllLetters = False
+                        break
+                if foundAllLetters:
+                    print(f'Yes! The secret word is "{secretWord}"! You have won!')
+                    displayCongratulations()
+                    gameIsDone = True
+            else:
+                missedLetters += guess
+
+                if len(missedLetters) == len(HANGMAN_PICS) - 1:
+                    displayBoard(missedLetters, correctLetters, secretWord)
+                    print(f'You have run out of guesses!\nAfter {len(missedLetters)} missed guesses and {len(correctLetters)} correct guesses, the word was "{secretWord}"')
+                    gameIsDone = True
+
+        if not playAgain():
+            print("Thanks for playing!")
+            break
+
+startGame()
